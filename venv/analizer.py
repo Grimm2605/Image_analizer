@@ -20,7 +20,7 @@ from matplotlib import pyplot as plt
 # upload img and resize if it needed for prediction
 img = cv2.imread('C:/Users/Grimm/Desktop/analiz_foto/0.png', cv2.IMREAD_COLOR)
 fullbody_cascade = cv2.CascadeClassifier('C:/Users/Grimm/Desktop/haarcascades/haarcascade_fullbody.xml')
-
+smile_cascade = cv2.CascadeClassifier('C:/Users/Grimm/Desktop/haarcascades/haarcascade_smile.xml')
 
 def img_resize(img):
     if img.shape[0] > 2500 or img.shape[1] > 2500:
@@ -39,14 +39,6 @@ def img_resize(img):
         resized_img = img
     return resized_img
 
-
-# set a mechanism for detection body on a img
-def fullbody_search(resized_img):
-    gray = cv2.cvtColor(resized_img, cv2.COLOR_BGR2GRAY)
-    search_result = fullbody_cascade.detectMultiScale(gray, 1.1, 1, minSize=(100, 100))
-    return search_result
-
-
 # drawing and showing img
 
 def draw_result(search_result, resized_img):
@@ -56,7 +48,17 @@ def draw_result(search_result, resized_img):
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
+# set methods for detection body on a img
+def fullbody_search(resized_img):
+    gray = cv2.cvtColor(resized_img, cv2.COLOR_BGR2GRAY)
+    search_result = fullbody_cascade.detectMultiScale(gray, 1.1, 1, minSize=(100, 100))
+    return search_result
+
+def smile_search(resized_img):
+    gray = cv2.cvtColor(resized_img, cv2.COLOR_BGR2GRAY)
+    search_result = smile_cascade.detectMultiScale(gray, 1.5, 11, minSize=(100, 100))
+    return search_result
 
 resized_img = img_resize(img)
-search_result = fullbody_search(resized_img)
+search_result = smile_search(resized_img)
 draw_result(search_result, resized_img)
