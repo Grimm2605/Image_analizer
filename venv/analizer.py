@@ -26,30 +26,25 @@ import cv2 as cv2
 from matplotlib import pyplot as plt
 
 # upload img and resize if it needed for prediction
-img = cv2.imread('C:/Users/Grimm/Desktop/analiz_foto/9.jpg', cv2.IMREAD_COLOR)
+img = cv2.imread('C:/Users/Grimm/Desktop/analiz_foto/1.jpg', cv2.IMREAD_COLOR)
 fullbody_cascade = cv2.CascadeClassifier('C:/Users/Grimm/Desktop/haarcascades/haarcascade_fullbody.xml')
 smile_cascade = cv2.CascadeClassifier('C:/Users/Grimm/Desktop/haarcascades/haarcascade_smile.xml')
 frontal_face_cascade = cv2.CascadeClassifier('C:/Users/Grimm/Desktop/haarcascades/haarcascade_frontalcatface.xml')
 eye_cascade = cv2.CascadeClassifier('C:/Users/Grimm/Desktop/haarcascades/haarcascade_lefteye_2splits.xml')
 profile_face_cascade = cv2.CascadeClassifier('C:/Users/Grimm/Desktop/haarcascades/haarcascade_profileface.xml')
+pers = 100
 
-def img_resize(img):
-    if img.shape[0] > 2500 or img.shape[1] > 2500:
-        scale_percent = 20  # percent of original size
-        width = int(img.shape[1] * scale_percent / 100)
-        height = int(img.shape[0] * scale_percent / 100)
-        dim = (width, height)
-        resized_img = cv2.resize(img, dim, interpolation=cv2.INTER_AREA)
-    elif 1500 <= img.shape[0] <= 2500 or 1500 <= img.shape[1] <= 2500:
-        scale_percent = 50  # percent of original size
-        width = int(img.shape[1] * scale_percent / 100)
-        height = int(img.shape[0] * scale_percent / 100)
+def img_resize(img, pers):
+    if img.shape[0] > 800 or img.shape[1] > 800:
+        width = int(img.shape[1] * pers / 100)
+        height = int(img.shape[0] * pers / 100)
         dim = (width, height)
         resized_img = cv2.resize(img, dim, interpolation=cv2.INTER_AREA)
     else:
         resized_img = img
+    print(img.shape)
+    print(resized_img.shape)
     return resized_img
-
 # drawing and showing img for visualisation and testing
 
 def draw_result(search_result, resized_img):
@@ -88,11 +83,17 @@ def eye_search_for_body(resized_img):
 # profile_face_search don`t worcking yet
 def profile_face_search(resized_img):
     gray = cv2.cvtColor(resized_img, cv2.COLOR_BGR2GRAY)
-    search_result = profile_face_cascade.detectMultiScale(gray, 1.1, 4, minSize=(70, 70))
+    search_result = profile_face_cascade.detectMultiScale(gray, 1.1, 1)
     return search_result
 
 
 if __name__ == "__main__":
-    resized_img = img_resize(img)
-    search_result = profile_face_searcer(resized_img)
+    if img.shape[0] >= img.shape[1]:
+        real_size = img.shape[0]
+    else:
+        real_size = img.shape[1]
+    pers = 80000 / real_size
+
+    resized_img = img_resize(img, pers)
+    search_result = profile_face_search(resized_img)
     draw_result(search_result, resized_img)
