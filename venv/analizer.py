@@ -26,7 +26,7 @@ import cv2 as cv2
 from matplotlib import pyplot as plt
 
 # upload img and resize if it needed for prediction
-img = cv2.imread('C:/Users/Grimm/Desktop/analiz_foto/13.jpg', cv2.IMREAD_COLOR)
+img = cv2.imread('C:/Users/Grimm/Desktop/analiz_foto/r4.jpg', cv2.IMREAD_COLOR)
 fullbody_cascade = cv2.CascadeClassifier('C:/Users/Grimm/Desktop/haarcascades/haarcascade_fullbody.xml')
 smile_cascade = cv2.CascadeClassifier('C:/Users/Grimm/Desktop/haarcascades/haarcascade_smile.xml')
 frontal_face_cascade = cv2.CascadeClassifier('C:/Users/Grimm/Desktop/haarcascades/haarcascade_frontalcatface.xml')
@@ -57,23 +57,23 @@ def img_resize(img, pers):
     return resized_img
 # drawing and showing img for visualisation and testing
 
-def draw_result(search_result, resized_img):
+def draw_result(search_result, resized_img, name='img'):
     for (x, y, w, h) in search_result:
         cv2.rectangle(resized_img, (x, y), (x + w, y + h), (12, 150, 100), 2)
-    cv2.imshow('image', resized_img)
+    cv2.imshow(name, resized_img)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
 # set methods for detection body or else on a img
 def fullbody_search(resized_img):
     gray = cv2.cvtColor(resized_img, cv2.COLOR_BGR2GRAY)
-    search_result = fullbody_cascade.detectMultiScale(gray, 1.1, 1, minSize=(300, 200))
+    search_result = fullbody_cascade.detectMultiScale(gray, 1.1, 1, minSize=(250, 250))
     print(len(search_result)) # print number of detection objects
     return search_result
 
 def smile_search(resized_img):
     gray = cv2.cvtColor(resized_img, cv2.COLOR_BGR2GRAY)
-    search_result = smile_cascade.detectMultiScale(gray, 1.5, 11, minSize=(100, 100))
+    search_result = smile_cascade.detectMultiScale(gray, 1.5, 11, minSize=(500, 500))
     return search_result
 
 def frontal_face_search(resized_img):
@@ -94,27 +94,57 @@ def eye_search_for_body(resized_img):
 # profile_face_search don`t worcking correct for all img yet. Need to add a border for img.
 def profile_face_search(resized_img_bd):
     gray = cv2.cvtColor(resized_img_bd, cv2.COLOR_BGR2GRAY)
-    search_result = profile_face_cascade.detectMultiScale(gray, 1.1, 1, minSize=(100,100))
+    search_result = profile_face_cascade.detectMultiScale(gray, 1.1, 1, minSize=(500,500))
     return search_result
 
 def resized_img_with_border(resized_img):
-    resized_img_bd = cv2.copyMakeBorder(resized_img, 10, 10, 10, 10, 0)
+    resized_img = cv2.copyMakeBorder(resized_img, 10, 10, 10, 10, 0)
     return resized_img
 
-if __name__ == "__main__":
-    if img.shape[0] >= img.shape[1]:
-        real_size = img.shape[0]
-    else:
-        real_size = img.shape[1]
-    pers = 80000 / real_size
 
-    resized_img = img_resize(img, pers)
-    #resized_img_bd = resized_img_with_border(resized_img)
-    #search_result = profile_face_search(resized_img_bd)
-    #draw_result(search_result, resized_img_bd)
+if img.shape[0] >= img.shape[1]:
+    real_size = img.shape[0]
+else:
+    real_size = img.shape[1]
+pers = 80000 / real_size
 
-    for i in range(0,3):
+resized_img = img_resize(img, pers)
+rseized_img = cv2.copyMakeBorder(resized_img, 10, 10, 10, 10, 0)
+num_of_rotate = 0
+while num_of_rotate != 4:
+
+    if num_of_rotate != 0:
         resized_img = cv2.rotate(resized_img, cv2.ROTATE_90_CLOCKWISE)
-        cv2.imshow('image', resized_img)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+
+    search_result = fullbody_search(resized_img)
+    if len(search_result) == 1:
+        draw_result(search_result, resized_img, name = 'fullbody')
+        num_of_rotate = 0
+        break
+
+    search_result = smile_search(resized_img)
+    if len(search_result) == 1:
+        draw_result(search_result, resized_img, name = 'smile')
+        num_of_rotate = 0
+        break
+
+    search_result = frontal_face_search(resized_img)
+    if len(search_result) == 1:
+        draw_result(search_result, resized_img, name='frontal face')
+        num_of_rotate = 0
+        break
+
+    search_result = profile_face_search(resized_img)
+    if len(search_result) == 1:
+        draw_result(search_result, resized_img, name = "profile face")
+        num_of_rotate = 0
+        break
+
+    else:
+        if num_of_rotate >= 3:
+            cv2.imshow("not detected", resized_img)
+            cv2.waitKey(0)
+            cv2.destroyAllWindows()
+            break
+        else:
+            num_of_rotate += 1
