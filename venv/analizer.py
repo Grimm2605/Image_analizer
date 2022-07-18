@@ -24,9 +24,11 @@
 import numpy as np
 import cv2 as cv2
 from matplotlib import pyplot as plt
+from PIL import Image
 
 # upload img and resize if it needed for prediction
-img = cv2.imread('C:/Users/Grimm/Desktop/analiz_foto/r4.jpg', cv2.IMREAD_COLOR)
+img_path = 'C:/Users/Grimm/Desktop/analiz_foto/r4.jpg'
+img = cv2.imread(img_path, cv2.IMREAD_COLOR)
 fullbody_cascade = cv2.CascadeClassifier('C:/Users/Grimm/Desktop/haarcascades/haarcascade_fullbody.xml')
 smile_cascade = cv2.CascadeClassifier('C:/Users/Grimm/Desktop/haarcascades/haarcascade_smile.xml')
 frontal_face_cascade = cv2.CascadeClassifier('C:/Users/Grimm/Desktop/haarcascades/haarcascade_frontalcatface.xml')
@@ -35,6 +37,10 @@ profile_face_cascade = cv2.CascadeClassifier('C:/Users/Grimm/Desktop/haarcascade
 # persents for img resizing with correct aspect ratio
 pers = 100
 real_size = img.shape[0]
+
+#get creation date
+def get_date_taken(img_path):
+    return print(Image.open(img_path)._getexif()[36867])
 
 # img prepearing
 def persents_counter(img):
@@ -111,6 +117,7 @@ pers = 80000 / real_size
 resized_img = img_resize(img, pers)
 rseized_img = cv2.copyMakeBorder(resized_img, 10, 10, 10, 10, 0)
 num_of_rotate = 0
+get_date_taken(img_path)
 while num_of_rotate != 4:
 
     if num_of_rotate != 0:
